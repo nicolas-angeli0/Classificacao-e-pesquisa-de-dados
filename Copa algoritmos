@@ -1,0 +1,37 @@
+def arrumar(arr,inicio,fim):
+    for atual in range(inicio+1,fim+1):
+        valor=arr[atual]
+        anterior=atual-1
+
+        while anterior>=inicio and arr[anterior]>valor:
+            arr[anterior+1]=arr[anterior]
+            anterior-=1
+
+        arr[anterior+1]=valor
+
+def nick_sort(arr):
+    tamanho=len(arr)
+
+    if tamanho<40:
+        arrumar(arr,0,tamanho-1)
+        return arr
+
+    salto=1
+
+    while salto<tamanho//3:
+        salto=salto*3+1
+
+    while salto>0:
+        for indice in range(salto,tamanho):
+            auxiliar=arr[indice]
+            posicao=indice
+
+            while posicao>=salto and arr[posicao-salto]>auxiliar:
+                arr[posicao]=arr[posicao-salto]
+                posicao-=salto
+
+            arr[posicao]=auxiliar
+
+        salto//=3
+
+    return arr
