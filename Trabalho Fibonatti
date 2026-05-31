@@ -1,0 +1,44 @@
+def busca_fibonacci(arr, alvo):
+    n = len(arr)
+    
+    fib2 = 0
+    fib1 = 1
+    fib  = 1
+    
+    while fib < n:
+        fib2 = fib1
+        fib1 = fib
+        fib  = fib1 + fib2
+    
+    inicio = -1
+    
+    while fib > 1:
+        i = min(inicio + fib2, n - 1)
+        
+        if arr[i] < alvo:
+            fib  = fib1
+            fib1 = fib2
+            fib2 = fib - fib1
+            inicio = i
+        elif arr[i] > alvo:
+            fib  = fib2
+            fib1 = fib1 - fib2
+            fib2 = fib  - fib1
+        else:
+            return i
+    
+    if fib1 and inicio + 1 < n and arr[inicio + 1] == alvo:
+        return inicio + 1
+    
+    return -1
+
+
+arr = [10, 22, 35, 40, 45, 50, 80, 82, 85, 90, 100]
+
+casos = [10, 85, 100, 42]
+for val in casos:
+    pos = busca_fibonacci(arr, val)
+    if pos != -1:
+        print(f"Valor {val} encontrado no índice {pos}")
+    else:
+        print(f"Valor {val} não encontrado")
