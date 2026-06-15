@@ -1,0 +1,206 @@
+class No:
+    def __init__(self):
+        self.filhos={}
+        self.fim_palavra=False
+        self.frequencia=0
+
+class Trie:
+    def __init__(self):
+        self.raiz=No()
+
+    def inserir_palavra(self,palavra):
+
+        if isinstance(palavra,list):
+            for i in palavra:
+                self.inserir_palavra(i)
+            return
+
+        atual=self.raiz
+
+        for letra in palavra:
+
+            if letra not in atual.filhos:
+                atual.filhos[letra]=No()
+
+            atual=atual.filhos[letra]
+
+        atual.fim_palavra=True
+        atual.frequencia+=1
+
+    def remover_palavra(self,palavra):
+
+        if isinstance(palavra,list):
+            for i in palavra:
+                self.remover_palavra(i)
+            return
+
+        atual=self.raiz
+
+        for letra in palavra:
+
+            if letra not in atual.filhos:
+                return
+
+            atual=atual.filhos[letra]
+
+        atual.fim_palavra=False
+        atual.frequencia=0
+
+    def buscar(self,no,prefixo,resultado):
+
+        if no.fim_palavra:
+            resultado.append((-no.frequencia,prefixo))
+
+        for letra,filho in no.filhos.items():
+
+            self.buscar(
+                filho,
+                prefixo+letra,
+                resultado
+            )
+
+    def sugerir_palavra(self,prefixo,max=3):
+
+        atual=self.raiz
+
+        for letra in prefixo:
+
+            if letra not in atual.filhos:
+                return []
+
+            atual=atual.filhos[letra]
+
+        resultado=[]
+
+        self.buscar(
+            atual,
+            prefixo,
+            resultado
+        )
+
+        resultado.sort()
+
+        sugestoes=[]
+
+        for item in resultado[:max]:
+            sugestoes.append(item[1])
+
+        return sugestoes
+
+    def todas(self):
+
+        resultado=[]
+
+        self.buscar(
+            self.raiz,
+            "",
+            resultado
+        )
+
+        palavras=[]
+
+        for item in resultado:
+            palavras.append(item[1])
+
+        return palavras
+
+    def distancia(self,s1,s2):
+
+        linhas=len(s1)+1
+        colunas=len(s2)+1
+
+        matriz=[[0 for j in range(colunas)] for i in range(linhas)]
+
+        for i in range(linhas):
+            matriz[i][0]=i
+
+        for j in range(colunas):
+            matriz[0][j]=j
+
+        for i in range(1,linhas):
+            for j in range(1,colunas):
+
+                if s1[i-1]==s2[j-1]:
+                    custo=0
+                else:
+                    custo=1
+
+                matriz[i][j]=min(
+                    matriz[i-1][j]+1,
+                    matriz[i][j-1]+1,
+                    matriz[i-1][j-1]+custo
+                )
+
+        return matriz[-1][-1]
+
+    def corrigir_palavra(self,palavra,max=3):
+
+        candidatos=[]
+
+        for p in self.todas():
+
+            dist=self.distancia(
+                palavra,
+                p
+            )
+
+            candidatos.append((dist,p))
+
+        candidatos.sort()
+
+        sugestoes=[]
+
+        for item in candidatos[:max]:
+            sugestoes.append(item[1])
+
+        return sugestoes
+
+
+if __name__ == '__main__':
+
+    print("Exemplo da Trie")
+
+    trie=Trie()
+
+    trie.inserir_palavra([
+        "casa",
+        "casaco",
+        "casal",
+        "carro",
+        "cartografia",
+        "cachorro",
+        "caminho",
+        "camisa",
+        "caneta",
+        "cadeira"
+    ])
+
+    trie.inserir_palavra("casa")
+    trie.inserir_palavra("casa")
+    trie.inserir_palavra("casa")
+
+    trie.inserir_palavra("carro")
+    trie.inserir_palavra("carro")
+
+    print("Sugestões para 'ca':")
+    print(trie.sugerir_palavra("ca",5))
+
+    print()
+
+    print("Removendo 'casaco'")
+    trie.remover_palavra("casaco")
+
+    print()
+
+    print("Sugestões após remoção:")
+    print(trie.sugerir_palavra("ca",10))
+
+    print()
+
+    print("Corretor para 'cassa':")
+    print(trie.corrigir_palavra("cassa"))
+
+    print()
+
+    print("Corretor para 'carroo':")
+    print(trie.corrigir_palavra("carroo"))
